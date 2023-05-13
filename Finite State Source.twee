@@ -1,0 +1,643 @@
+:: StoryTitle
+Finite State 1
+
+
+:: StoryData
+{
+  "ifid": "099916be-87ec-4d7e-a29f-94195eb2fbbb",
+  "format": "Harlowe",
+  "format-version": "3.3.5",
+  "start": "start",
+  "zoom": 0.6
+}
+
+
+:: \ Ryan {"position":"2200,300","size":"100,100"}
+You ask him "What happened are you OK"
+He tells you that he will be fine, just needs to rest.
+
+[[Head Downstairs->wUpgrade]]
+
+
+:: 1stHalf {"position":"1000,1600","size":"100,100"}
+(set: $accessCard to $accessCard + 1)\
+(set: $1Visted to true)\
+\
+(if: $accessCard is 1)[
+You Found Half of the Access Card, find the other half to open the door.
+
+[[Close Cabinet->Search]]
+](else-if: $accessCard is 2)[
+You Found the Second Half! You combine them to fix the keycard.
+
+[[Open Locked Room->Scientist]]
+]
+
+
+
+
+
+:: 2ndHalf {"position":"1000,1800","size":"100,100"}
+(set: $accessCard to $accessCard + 1)\
+(set: $2Visted to true)\
+\
+(if: $accessCard is 1)[
+You Found Half of the Access Card, find the other half to open the door.
+
+[[Close Cabinet->Search]]
+](else-if: $accessCard is 2)[
+You Found the Second Half! You combine them to fix the keycard.
+
+[[Open Locked Room->Scientist]]
+]
+
+
+
+
+:: AnotherWay {"position":"1200,2300","size":"100,100"}
+You choose it's best to keep it silent. You ask the scientist if he knows any way out. It takes him a minute to think but he says the sewers with a worrying expression.
+He says they will lead us out but he's not sure if they have been overrun or not. There's no way to know unless were down there and if they have it would be too many to fight.
+
+[[Head to sewers->Sewers]]
+[[Shoot the lock instead ->shootLock]]
+
+
+:: Approach {"position":"1900,1000","size":"100,100"}
+As you approach these workers you notice they're alive. They seemed to be intoxicated by the drug they had been digging up and it has changed not only their appearance but their ability to think. They seem aggressive and they are running at you in a large heard.
+
+You draw your weapon
+
+[[Fight(HP :$currentHP) ->Combat]]
+[[Run ->RuntoCar]]
+
+
+:: Armory {"position":"1500,1600","size":"100,100"}
+(set: $keycardBlue to $keycardBlue - 1)\
+(set: $weapon to "Field Tested Sub")\
+(set: $maxDmg to 14)\
+(set: $BypassArmory to true)\
+\
+You found an expeirmental $weapon that has the scientist signature on it. Your new Damage is $maxDmg
+
+[[Leave Armory ->Inside]]
+
+
+
+
+:: Armory2 {"position":"1600,1250","size":"100,100"}
+You have already looted $weapon. The rest of the room is filled with junk of no use to you.
+
+[[Leave Armory ->Inside]]
+
+
+:: ArmoryCheck {"position":"1500,1400","size":"100,100"}
+This door requires Keycard BLUE.
+
+Inside this room you will be able to upgrade your weapon, increasing your outputted damage.\
+
+(if: $BypassArmory is True)[
+	You have unlocked door previous, you may enter
+    
+	[[Use Unlocked Door->Armory2]]
+](else-if: $keycardBlue >= 1)[
+	You have $keycardBlue/1 Blue Keycards
+    Keycard will be destroyed on usage
+    
+  [[Proceed in Armory->Armory]]
+  [[Step away from door->Inside]] 
+](else:)[
+	You have $keycardBlue/1 Blue Keycards
+	You do not have Access
+	[[Step away from door->Inside]] 
+]
+
+
+:: Bunker {"position":"1700,1600","size":"100,100"}
+You have entered the main bunker. You walk with caution trying to find the scientist. The room is dead silent. 
+
+[[Call out to the scientist ->Loud]]
+[[Slowly look for scientist ->Quiet]]
+
+
+:: Calm {"position":"1925,2600","size":"100,100"}
+(set:$isCalm to (random: 1, 4))\
+\
+(if: $isCalm is 4)[\
+	The Scientist calmed down and you let the zombies pass
+    
+    [[Wait for extraction->EndGame]]
+]\
+(else:)[\
+	(set: $sci_su to false)
+	The scientist was too freaked and started screaming, the creatures are alerted of your 		position and start rushing you
+    
+    [[Fight (HP :$currentHP)->EC]]
+    [[Try to run away->RunAway]]
+]
+
+
+:: Chase {"position":"2500,2800","size":"100,100"}
+You run after the scientist quickly grabbing and securing him, however with all the noise you see the creatures storming you quickly.
+
+[[RUN!! ->DeadGame]]
+[[Fight->NoGun]]
+
+
+:: Combat {"position":"1700,1100","size":"100,100"}
+(set: $StepsTaken to (random: 1, 2))\
+\
+Current HP: $currentHP
+Enemy HP: $enemyHP
+
+(if: $enemyHP <=0)[
+	You Defeated the Hoard
+    (set: $keycardBlue to (random: 1, 2))
+    You Find $keycardBlue Blue Keycards.
+    (set: $distance to (random: $MinEvade, $MaxEvade))
+    (set: $enemyHP to 95)
+    [[Head Inside ->Inside]] 
+](else-if: $distance <= 0)[
+    The creatures got too close.
+    You Took $enemyDmg Damage
+    (set: $currentHP to $currentHP - $enemyDmg)
+    (set: $distance to (random: $MinEvade, $MaxEvade))
+    
+    [[Create Distance->Distance]] 
+](else-if: $currentHP <=0)[
+	[[You were overrun and died->Dead]]
+](else:)[
+	(set: $enemyHP to $enemyHP - $maxDmg)
+     The heard is closing in.
+     Steps Away from You: $distance
+	
+	[[Fire $weapon->Combat]] 
+    (set: $distance = $distance - $StepsTaken)
+	
+]
+
+
+
+
+:: Dead {"position":"1300,1300","size":"100,100"}
+You had died to combat and lost to the creatures.
+
+
+:: Dead2 {"position":"2400,1800","size":"100,100"}
+You had died to combat and lost to the creatures.
+
+
+:: Dead3 {"position":"1275,2800","size":"100,100"}
+You had died to combat and lost to the creatures.
+
+
+:: DeadGame {"position":"2200,3200","size":"100,100"}
+You where not fast enough and where overtaken by the creatures.
+
+
+:: Distance {"position":"1400,1100","size":"100,100"}
+(set: $distance to (random: $MinEvade, $MaxEvade))
+You managed to take a $distance steps back.
+
+[[Re-engage Fight with $weapon->Combat]]
+
+
+:: Distance3 {"position":"1700,2800","size":"100,100"}
+(set: $distance to (random: $MinEvade, $MaxEvade))
+You managed to take a $distance steps back.
+
+[[Re-engage Fight with $weapon->EC]]
+
+
+:: DowninSewer {"position":"1000,2700","size":"100,100"}
+(set: $enemySpawn to (random:1, 10))\
+\
+(if: $enemySpawn >= 4)[
+    You quietly make your way through the sewers watching your every step. You slowly notice the exit and are lucky to find nothing to make its way down here yet.
+    
+    [[Extract->Extraction]]
+](else:)[
+	(set: $sci_su to false)
+		You quietly make your way through the sewers watching your every step. You slowly notice the exit, the scientist sees this and starts running towards the exit. As he's running a creature leaps out and jumps on him tearing him to pieces. 
+    You take a few shots to take out the creature and quickly run outside.
+    Those shots were heard by the creatures in the distance and you start getting rushed.
+    
+    [[Fight(HP :$currentHP)->EC]] 
+]
+
+
+:: EC {"position":"1500,2600","size":"100,100"}
+(set: $StepsTaken to (random: 3, 5))\
+(set: $enemyDmg to (random:24, 32))\
+\
+Current HP: $currentHP
+Enemy HP: $enemyHP
+
+(if: $enemyHP <=0)[
+	You Defeated the Hoard
+    
+    [[Extract->Extraction]]
+](else-if: $distance <= 0)[
+    The creatures got too close.
+    You Took $enemyDmg Damage
+    (set: $currentHP to $currentHP - $enemyDmg)
+    (set: $distance to (random: $MinEvade, $MaxEvade))
+    [[Create Distance->Distance3]] 
+](else-if: $currentHP <=0)[
+	[[You were overrun and died->Dead3]]
+](else:)[
+	(set: $enemyHP to $enemyHP- $maxDmg)
+	The heard is closing in.
+	Steps Away from You: $distance
+
+	[[Fire $weapon->EC]] 
+    (set: $distance = $distance - $StepsTaken)
+]
+
+
+:: Empty {"position":"1325,1450","size":"100,100"}
+This cabinet is filled with junk, try another cabinet
+
+[[Close Cabinet->Search]]
+
+
+:: EndGame {"position":"1500,3000","size":"100,100"}
+Congrats, you completed your mission and extracted with the scientist
+
+
+:: EndGame2 {"position":"1300,3000","size":"100,100"}
+You were able to extract with your life, however, in the chaos the scientist was taken by the creatures. You were not able to save the scientist.
+
+
+:: Exit {"position":"2500,800","size":"100,100"}
+You realize this isn't for you and seeing how Ryan was hurt you choose it's best to quit and reenroll in college. You decide to join a computer science class and go on to make games. 
+
+You start seeing stories of a new species rising in the forest and possibly taking over and burning the cities to the ground but your only concern right now is realizing the next big game.
+
+
+:: Extraction {"position":"1500,2800","size":"100,100"}
+After surviving the oncoming hoards, you hear the noises of your chopper extraction.
+
+As you hear more screams from the distance you quickly board the helicopter.
+(if: $sci_su is true)[\
+
+	[[Leave Area ->EndGame]]
+](else-if: $sci_su is false)[\
+
+	[[Leave Area ->EndGame2]] 
+]
+
+
+:: ExtractionHide {"position":"1700,2400","size":"100,100"}
+You and the scientist quickly find a spot to hide. As the creatures storm into the sound of your gunfire, you quickly start getting overrun. 
+The scientist starts to freak out and you realize that he can't control himself.
+
+[[Try to calm scientist down->Calm]]
+[[Do nothing and try to let zombies pass ->Nothing]]
+
+
+:: Fight {"position":"1975,2000","size":"100,100"}
+(set: $StepsTaken to (random: 2, 4))\
+(set: $enemyDmg to (random:22, 27))\
+\
+Current HP: $currentHP
+Enemy HP: $enemyHP
+
+
+(if: $enemyHP <=0)[
+	You Defeated the Hoard
+    (set: $distance to (random: $MinEvade, $MaxEvade))
+    (set: $enemyHP to 125)\
+     [[Head Inside ->Next]]
+
+](else-if: $currentHP <=0)[
+	[[You were overrun and died->Dead2]]
+](else-if: $distance <= 0)[
+    The creatures got too close.
+    You Took $enemyDmg Damage
+    (set: $currentHP to $currentHP - $enemyDmg)
+    [[Create Distance->NewDistance]] 
+](else:)[
+	(set: $enemyHP to $enemyHP - $maxDmg)
+     The heard is closing in.
+     Steps Away from You: $distance
+    
+	[[Fire $weapon->Fight]] 
+    (set: $distance = $distance - $StepsTaken)
+]
+
+
+
+
+
+
+:: Forest {"position":"2100,1000","size":"100,100"}
+You arrive at the forest in your vehicle, this should be a quick grab-and-go, I mean no one's gonna mess with an agent holding a gun, you think to yourself.
+As you approach closer to the dig site, you hear screams, getting louder and more aggressive. You approach and notice a large herd of these construction workers. 
+They look dead and angry.
+
+[[Get a closer look->Approach]]
+
+
+:: Gear {"position":"1900,1600","size":"100,100"}
+(set: $keycardBlue to $keycardBlue - 1)\
+(set: $currentHP to 110)\
+(set: $MinEvade to 6)\
+(set: $MaxEvade to 10)\
+(set: $BypassGear to true)\
+\
+You have repaired your armor and added modifications using the toolbench. Your new HP is $currentHP and your speed to evade was boosted
+
+[[Leave Repair Shop ->Inside]]
+
+
+
+
+
+
+:: Gear2 {"position":"2100,1400","size":"100,100"}
+You have repaired your armor to the max quality with the resources avaliable, their is no more use for this room.
+
+[[Leave Armory ->Inside]]
+
+
+:: GearCheck {"position":"1900,1400","size":"100,100"}
+This door requires Keycard BLUE.
+
+Inside this room you will be able to gear yourself up with stronger armor. Increasing your HP.\
+
+(if: $BypassGear is True)[
+	You have unlocked door previous, you may enter
+
+	[[Proceed in Repair Shop->Gear2]]
+](else-if: $keycardBlue >= 1)[
+	You have $keycardBlue/1 Blue Keycards
+    Keycard will be destroyed on usage
+    
+  [[Proceed in Repair Shop->Gear]]
+  [[Step away from door->Inside]] 
+](else:)[
+	You have $keycardBlue/1 Blue Keycards
+	You do not have Access
+	[[Step away from door->Inside]] 
+]
+
+
+
+
+
+
+:: HUB {"position":"1800,600","size":"100,100"}
+Hey their rookie, we got a situation. Look before I say anything I need to know
+you're ready. Honestly, I'd rather have someone experienced on this but Ryan insisted you 
+were ready.
+
+[[I am ready ->Ready]]
+[[I don't know ->Training]]
+
+
+
+:: Inside {"position":"1700,1400","size":"100,100"}
+As you walk in you quickly grab a lock off the floor and lock the door behind you. You notice you are inside the scientist bunker. Even for a bunker, you notice all the money he spent on this just for his comfort.
+
+There are many doors in front of you. Both the armory and gear rooms are locked with a keycard BLUE, it seems the bunker door has been opened already and the person forget to close the door leaving the door open.
+
+The Armory can upgrade my weapon but I can use the repair shop to rebuild and improve my armor for more hp.
+
+Current Weapon: $weapon
+Current HP: $currentHP
+
+[[Armory->ArmoryCheck]]
+[[Repair Shop->GearCheck]]
+[[Downstairs->Bunker]]
+
+
+:: Leave {"position":"2000,3100","size":"100,100"}
+You see the scientist try to run into the distance, however, the creatures were alerted of his presence. You see the creatures quickly storm after him and tear him into pieces just a few seconds later. You see the chopper approaching and realize while they are distracted you might be able to make it to the chopper.
+
+[[Run to Chopper->RuntoChopper]]
+[[Fight the horde(HP :$currentHP) ->EC]]
+
+
+:: Loud {"position":"1900,1800","size":"100,100"}
+As you yell for the scientist, you hear hoards coming running out to you.
+
+[[Fight (HP :$currentHP)->Fight]]
+
+
+:: NewDistance {"position":"2200,2000","size":"100,100"}
+(set: $distance to (random: $MinEvade, $MaxEvade))
+You managed to take a $distance steps back.
+
+[[Re-engage Fight with $weapon->Fight]]
+
+
+:: Next {"position":"1700,2000","size":"100,100"}
+As all the creatures around you fall, you hear are they all dead. Please Help Me.
+
+[[Head towards the person->Scientist]]
+
+
+:: NoGun {"position":"2500,3000","size":"100,100"}
+You go to draw your weapon and realize you left it back where you where hiding.
+
+[[RUN!! ->DeadGame]]
+
+
+:: Nothing {"position":"1925,2800","size":"100,100"}
+(set: $sci_su to false)\
+\
+The scientist is too freaked out and sees the extraction chopper in the distance, he tries to make a run for it into the woods
+
+[[Chase him->Chase]]
+[[Leave him->Leave]]
+
+
+:: Question {"position":"2100,2200","size":"100,100"}
+[[What are these creatures->origin]]
+[[How are you alive->alive]]
+[[How long have you been down here->time]]
+
+[[Let's Leave ->Yes]]
+
+
+:: Quiet {"position":"1575,1800","size":"100,100"}
+(set: $accessCard to 0)\
+(set: $1Visted to false)\
+(set: $2Visted to false)\
+\
+You slowly approach your way through the halls. You hear screeching in the distance. However, you feel it's best to avoid it. As you make your way you come across a locked room but you don't have access to the keycard. 
+You notice you can fight your way through the horde and go around the locked room or find the key.
+
+[[Search for Keycard->Search]]
+[[Fight Horde(HP :$currentHP)->Fight]]
+
+
+
+
+
+:: Ready {"position":"1800,800","size":"100,100"}
+Ok, that's good to hear. Listen we were hired to extract some rich scientist who thought he found the next miracle drug. Some dude with way too much money wants to get richer. 
+So he bought hired a bunch of construction workers and put them in the middle of a forest and put them to work.
+But he called saying many of his workers were getting aggressive and fighting against him. He's locked himself in his underground bunker, go get him out.
+
+And listen don't harm these workers, their probably just getting underpaid and mad, we will get someone out there to get them out soon.
+
+[[Head to forest ->Forest]]
+
+
+:: RunAway {"position":"2250,2550","size":"100,100"}
+Trying to grab the scientist and run away becomes difficult as the scientist is too scared too move. As you desperately try you realize its too much of a hassle. You ditch the scientist and run away.
+
+You see the creatures storm the scientist and tear him apart.
+
+[[Run to Chopper->RuntoChopper]]
+[[Fight the horde(HP :$currentHP) ->EC]]
+
+
+:: RuntoCar {"position":"2100,1200","size":"100,100"}
+You run to your car and realize your car has been overrun by the rest of the workers and they have completely stripped making it unfunctional.
+You find a door heading inside the building.
+
+[[Head inside->Inside]]
+[[Turn back and fight(HP :$currentHP)->Combat]]
+
+
+
+:: RuntoChopper {"position":"2200,3000","size":"100,100"}
+(set: $FastEnough to (random:1 ,5))\
+\
+(if: $FastEnough >= 4)[
+	You got to the chopper in time
+    
+    [[Leave Area ->EndGame2]] 
+](else:)[
+	You where not fast enough and where overtaken by the creatures.
+]
+
+
+:: Scientist {"position":"1700,2200","size":"100,100"}
+You find the scientist hiding in a locked room. He looks scared but sees you and asks you if you are his extraction.
+
+
+[[Yes. we need to leave->Yes]]
+[[Question Him->Question]]
+
+
+:: Search {"position":"1300,1675","size":"100,100"}
+Their are multiple cabinets infront of you, choose where to begin to search
+
+[[Cabinet 1 ->Empty]]
+[[Cabinet 2 ->Empty]]
+[[Cabinet 3->Empty]]\
+(if: $1Visted is false)[
+[[Cabinet 4->1stHalf]]
+]\
+(if: $1Visted is true)[
+[[Cabinet 4 ->Visted]]
+]\
+[[Cabinet 5->Empty]]
+[[Cabinet 6->Empty]]\
+(if: $2Visted is false)[
+[[Cabinet 7->2ndHalf]]
+]\
+(if: $2Visted is true)[
+[[Cabinet 7 ->Visted]]
+] \
+[[Cabinet 8->Empty]]
+
+
+
+:: Sewers {"position":"1100,2500","size":"100,100"}
+You find the ladders down, and even though its quiet you are not quiet sure what is down here. Heading down you notice the ladder is broken and you would have to jump down. Assuring you once you down their is no way back up.
+
+[[Head down->DowninSewer]]
+[[Go back and break Lock->shootLock]]
+
+
+:: Training {"position":"2200,800","size":"100,100"}
+Listen, kid, this is it. If you are arent ready then truly you aren't cut out for this program. I'd recommend packing your bags and leaving. I don't want to be mean but I heard you have been training hard to get here so you choose what you wanna do.
+
+[[I am Ready->Ready]] 
+[[I can't do this->Exit]]
+
+
+:: Visted {"position":"1075,1400","size":"100,100"}
+You have already found the part of key in this cabinet.
+
+
+:: Yes {"position":"1500,2200","size":"100,100"}
+The scientist slowly opens the door and you proceed to take him out the way you came.
+You notice the door you had locked up early. You try to open it but you have no key.
+
+[[Shoot the Lock->shootLock]]
+[[Find Another Way->AnotherWay]]
+
+
+:: alive {"position":"2200,2400","size":"100,100"}
+After I noticed the aggression of the workers, I had my security get involved. Seeing them getting ripped apart alerted me that something is wrong. I was able to head to my Bunker and lock myself in there with enough supplies to survive. After the initial call I made for an extraction I had no way of communicating due to no service down here.
+
+[[Back->Question]]
+
+
+:: origin {"position":"2000,2400","size":"100,100"}
+It seems the chemical we found is highly contagious and dangerous. The workers had been digging for days and it must have turned them insane. Their skin is falling apart and they have seemed to lose control of themselves.
+
+
+
+
+[[Back->Question]]
+
+
+:: rifle {"position":"2200,600","size":"100,100"}
+You take Ryan's Rifle and Equip it.
+
+[[Equip  ->HUB]]
+
+(set: $weapon to "Rifle")
+(set: $maxDmg to 10)
+
+
+:: shootLock {"position":"1525,2350","size":"100,100"}
+You shot the lock and made your way out. You call for an extraction but due to your gunfire the hear screeching and screaming. The longer your wait the closer they get.
+
+[[Fight (HP :$currentHP)->EC]]
+[[Hide ->ExtractionHide]]
+
+
+:: start {"position":"1800,300","size":"100,100"}
+You walk out of your dorm, you see Ryan standing their injured.
+He tells you the commander is looking for you downstairs.
+
+[[Go meet the commander downstairs ->HUB]]
+[[Ask Ryan if he's ok -> Ryan]]
+
+(set: $weapon to "Pistol")
+(set: $maxDmg to 7)
+(set: $currentHP to 100)
+(set: $enemyDmg to (random:12, 16))
+(set: $enemyHP to 75)
+(set: $Steps to 10)
+(set: $StepsTaken to 3)
+(set: $distance = 5)
+(set: $checkUp to false)
+(set: $MinEvade to 6)
+(set: $MaxEvade to 8)
+(set: $keycardBlue to 0)
+(set: $sci_su to true)
+(set: $BypassArmory to false)
+(set: $BypassGear to false)
+
+
+:: time {"position":"2300,2200","size":"100,100"}
+I'm honestly not sure, the scientist tells you. I have lost track of time and was running out of hope but luckily you arrived.
+
+[[Back->Question]]
+
+
+:: wUpgrade {"position":"2400,500","size":"100,100"}
+As you walk downstairs to meet the commander you are stopped by Ryan.
+He informs you that he will be stuck in the med bay for a while recovering and has
+no use for his weapon in the meantime. He hands you his custom rifle.
+
+[[Thank him and go downstairs ->rifle]] 
+[[Refuse and say its better if he holds onto it ->HUB]]
